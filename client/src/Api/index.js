@@ -15,12 +15,16 @@ export const registerUser = async (userData) => {
         }
 
         const data = await response.json();
+        
         return data;
     } catch (error) {
         console.error('Error registering user:', error);
         throw error;
     }
 };
+
+
+import Cookies from 'js-cookie';
 
 export const loginUser = async (credentials) => {
     try {
@@ -37,6 +41,7 @@ export const loginUser = async (credentials) => {
         }
 
         const data = await response.json();
+        Cookies.set('authToken', data.token, { expires: 7 });
         return data;
     } catch (error) {
         console.error('Error logging in:', error);

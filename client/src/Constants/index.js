@@ -50,3 +50,10 @@ export const journey = [
 ]
 
 export const textss = []
+
+export const applogo = "https://cdn-icons-png.flaticon.com/512/5580/5580962.png"
+
+
+// token
+import Cookies from 'js-cookie';
+export const token = Cookies.get('authToken');
