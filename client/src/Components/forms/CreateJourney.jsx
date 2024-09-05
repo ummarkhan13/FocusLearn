@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogPanel,
-} from "@headlessui/react";
-import { createJourney } from "../../Api/journeys";
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import { createJourney, createJourneyWithPlaylist, getAllJourneys } from "../../Api/journeys";
+import { useNavigate } from "react-router-dom";
+import { extractPlaylistId } from "../../Constants";
 
 const CreateJourney = ({ open, setOpen }) => {
   const [title, setTitle] = useState("");
@@ -23,17 +21,39 @@ const CreateJourney = ({ open, setOpen }) => {
 
     try {
       const result = await createJourney(journeyData);
+      await getAllJourneys();
       console.log(result);
+      setOpen(!open);
+    } catch (error) {
+      console.error("Error creating journey:", error);
+    }
+  };
+
+  const createWithPlayist = async (e) => {
+    e.preventDefault();
+    const journeyData = {
+      playlistId : extractPlaylistId(playlist),
+      is_public,
+    };
+    console.log(journeyData);
+
+    try {
+      const result = await createJourneyWithPlaylist(journeyData);
+      await getAllJourneys();
+      console.log(result);
+      setOpen(!open);
     } catch (error) {
       console.error("Error creating journey:", error);
     }
   };
 
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} className="relative z-10">
-      <DialogBackdrop
-        className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-      />
+    <Dialog
+      open={open}
+      onClose={() => setOpen(false)}
+      className="relative z-10"
+    >
+      <DialogBackdrop className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
       <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
         <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <DialogPanel className="flex gap-5 justify-center items-center relative transform overflow-hidden rounded-lg bg-transparent text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl">
@@ -142,42 +162,9 @@ const CreateJourney = ({ open, setOpen }) => {
               <h2 className="mb-1 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                 Create with Playlist
               </h2>
-              <form className="mt-4 space-y-4 lg:mt-5 md:space-y-5" action="#">
-                <div>
-                  <label
-                    htmlFor="jn"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Journey Name
-                  </label>
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    name="jn"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Journey Name"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Description
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    name="description"
-                    placeholder="Start writing..."
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    required
-                  />
-                </div>
-
+              <form className="mt-4 space-y-4 lg:mt-5 md:space-y-5" 
+              onSubmit={(e)=>createWithPlayist(e)}
+              >
                 <div>
                   <label
                     htmlFor="playlist"

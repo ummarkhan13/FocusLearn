@@ -1,24 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CreateJourney from "../Components/forms/CreateJourney";
-import { getAllJourneys } from "../Api/journeys";
+import { deleteJourney, getAllJourneys } from "../Api/journeys";
 
 const Home = () => {
 
   const [open, setOpen] = useState(false);
   const [data, setData] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const journeys = await getAllJourneys();
-      if (journeys) {
-        setData(journeys);
-        console.log(journeys);  
+  const deleteOneJourney = async (jid) => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this journey?");
+  
+    if (isConfirmed) {
+      try {
+        await deleteJourney(jid);
+        console.log("Journey deleted successfully.");
+        fetchData()
+      } catch (error) {
+        console.error("Error deleting journey:", error);
       }
-    };
+    } else {
+      console.log("Deletion canceled.");
+    }
+  };
 
+  const fetchData = async () => {
+    const journeys = await getAllJourneys();
+    if (journeys) {
+      setData(journeys);
+      console.log(journeys);  
+    }
+  };
+  
+
+  useEffect(() => {
     fetchData(); 
-  }, []); 
+  }, [open,setOpen]); 
 
   return (
     <>
@@ -81,16 +98,16 @@ const Home = () => {
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
                     <th scope="col" className="px-4 py-4">
-                      Journey Name
+                      Journey ID
                     </th>
                     <th scope="col" className="px-4 py-3">
-                      Subject
+                      Journey Name
                     </th>
                     <th scope="col" className="px-4 py-3">
                       Description
                     </th>
                     <th scope="col" className="px-4 py-3">
-                      Notes
+                      Visibility
                     </th>
                     <th scope="col" className="px-4 py-3">
                       <span className="sr-only">Actions</span>
@@ -109,22 +126,23 @@ const Home = () => {
                           <Link to={`/journey/${d.id}`}>{d.id}</Link>
                         </th>
                         <td className="px-4 py-3">
+                        <Link className=" cursor-pointer hover:underline hover:text-white" to={`/journey/${d.id}`}>
                           {d.title ? d.title : "Untitled"}
+                        </Link>
                         </td>
                         <td className="px-4 py-3 max-w-[12rem] truncate">
                           {d.description
                             ? d.description
                             : "No description available"}
                         </td>
-                        <td className="px-4 py-3">$2999</td>
+                        <td className="px-4 py-3">{d.is_public?'public':'private'}</td>
                         <td className="px-4 py-3 flex items-center justify-end">
                           <button
-                            id={`dropdown-button-${d.id}`}
-                            data-dropdown-toggle={`dropdown-${d.id}`}
-                            className="inline-flex items-center text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                            className="inline-flex items-center text-sm font-medium hover:bg-red-500 dark:hover:bg-red-700 p-1.5 text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                             type="button"
+                            onClick={()=>deleteOneJourney(d.id)}
                           >
-                            Button
+                            Delete
                           </button>
                         </td>
                       </tr>

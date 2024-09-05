@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { journey, textss } from "../Constants";
+import { extractVideoId, journey, textss } from "../Constants";
 import CreateChapter from "../Components/forms/CreateChapter";
 import AddNotes from "../Components/forms/AddNotes";
 import EditChapter from "../Components/forms/EditChapter";
 import VideoPlayer from "../Components/VideoPlayer";
+import { getJourneyById } from "../Api/journeys";
+import { getChaptersByJourneyId } from "../Api/chapters";
 
 const JourneyPage = () => {
   const [toggleDropDown, setToggleDD] = useState("hidden");
@@ -12,14 +14,31 @@ const JourneyPage = () => {
     setToggleDD(toggleDropDown === "hidden" ? " " : "hidden");
   };
 
+  const [chapters, setChapters] = useState([]);
+
   const { jId } = useParams();
-  console.log(jId);
   const [open, setOpen] = useState(false);
   const [openNotes, setOpenNotes] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openV, setOpenV] = useState(false);
-  const journies = journey[jId];
-  
+  const [jData, setJData] = useState("");
+
+  const fetchData = async () => {
+    const journeys = await getJourneyById(jId);
+    const chapterList = await getChaptersByJourneyId(jId);
+    if (journeys) {
+      setJData(journeys);
+      console.log(journeys);
+    }
+    if (chapterList) {
+      setChapters(chapterList);
+      console.log(chapterList);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div>
@@ -28,22 +47,19 @@ const JourneyPage = () => {
         <div class="mx-auto grid max-w-screen-xl rounded-lg bg-gray-50 p-4 dark:bg-gray-800 md:p-8 lg:grid-cols-12 lg:gap-8 lg:p-16 xl:gap-16">
           <div class="lg:col-span-10 lg:mt-0">
             <div className="flex flex-col gap-3">
-              <div className="font-bold text-4xl text-white">
-                {journies.journey}{" "}
-              </div>
+              <div className="font-bold text-4xl text-white">{jData.title}</div>
               <div className="font-bold text-2xl text-white">
-                {journies.subject}{" "}
+                {jData.description}
               </div>
               <div className="font-semi text-xl text-white">
-                {journies.Description}{" "}
+                {jData.is_public ? "public" : "private"}
               </div>
 
               <div class="my-6 w-full bg-gray-200 rounded-full h-4">
                 <div class="bg-blue-600 h-4 rounded-full w-[40%]"></div>
                 <div className="font-semi text-xl text-white my-1">
-               Progress: 40%
-              </div>
-                
+                  Progress: 40%
+                </div>
               </div>
             </div>
           </div>
@@ -65,7 +81,7 @@ const JourneyPage = () => {
             <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
               <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                 <button
-                onClick={()=>setOpen(!open)}
+                  onClick={() => setOpen(!open)}
                   type="button"
                   id="createProductModalButton"
                   data-modal-target="createProductModal"
@@ -75,11 +91,10 @@ const JourneyPage = () => {
                   <span className="font-bold text-2xl pb-1 mx-2"> +</span> Add
                   New Chapter
                 </button>
-                <CreateChapter open={open} setOpen={setOpen}/>
+                <CreateChapter open={open} setOpen={setOpen} />
                 {/* <AddNotes openNotes={openNotes} setOpenNotes={setOpenNotes}/> */}
-                <EditChapter openEdit={openEdit} setOpenEdit={setOpenEdit}/>
+                <EditChapter openEdit={openEdit} setOpenEdit={setOpenEdit} />
                 {/* <VideoPlayer openV={openV} setOpenV={setOpenV} videoId={videoId} /> */}
-
               </div>
               {textss[0]}
             </div>
@@ -110,7 +125,56 @@ const JourneyPage = () => {
                 </thead>
 
                 <tbody>
-                  <tr className="border-b dark:border-gray-700">
+                  {chapters.map((chapter, index) => (
+                    <tr
+                      key={chapter.id}
+                      className="border-b dark:border-gray-700"
+                    >
+                      <td className="px-4 py-3 text-md font-semibold">
+                        <input
+                          type="checkbox"
+                          className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
+                        />
+                      </td>
+                      <th
+                        scope="row"
+                        className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                      >
+                        {index + 1}
+                      </th>
+                      <td className="px-4 py-3 text-md font-semibold cursor-pointer hover:underline">
+                        <Link to={`/player/${extractVideoId(chapter.video_link) }`}>
+                          {chapter.title}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          className="text-yellow-500 rounded hover:bg-slate-900 p-2 text-md font-semibold border"
+                          onClick={() => console.log("Add Notes clicked")}
+                        >
+                          Add Notes
+                        </button>
+                      </td>
+                      <td className="px-4 py-3 max-w-[12rem] truncate">
+                        <button
+                          className="text-green-500 rounded hover:bg-slate-900 p-2 text-md font-semibold border"
+                          onClick={() => console.log("Edit clicked")}
+                        >
+                          Edit
+                        </button>
+                      </td>
+                      <td className="px-4 py-3 max-w-[12rem] truncate">
+                        <button
+                          className="text-red-500 rounded hover:bg-slate-900 p-2 text-md font-semibold border"
+                          onClick={() => console.log("Delete clicked")}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {/* <tr className="border-b dark:border-gray-700">
                     <td className="px-4 py-3 text-md font-semibold">
                       <input type="checkbox" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" />
                     </td>
@@ -145,7 +209,7 @@ const JourneyPage = () => {
                         Delete
                       </button>
                     </td>
-                  </tr>
+                  </tr> */}
                 </tbody>
               </table>
             </div>

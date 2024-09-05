@@ -2,7 +2,7 @@ import Cookies from 'js-cookie';
 import { apiurl } from '.';
 
 
-const getAuthToken = () => {
+export const getAuthToken = () => {
     const token =  Cookies.get('authToken');
     console.log(token);
     return token
@@ -14,6 +14,31 @@ export const createJourney = async (journeyData) => {
   
   try {
     const response = await fetch(`${apiurl}/journeys`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(journeyData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create journey');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error creating journey:', error.message);
+  }
+};
+
+//create with playlist
+export const createJourneyWithPlaylist = async (journeyData) => {
+  const token = getAuthToken();
+  
+  try {
+    const response = await fetch(`${apiurl}/journeys/playlist`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -106,12 +131,12 @@ export const updateJourney = async (journeyId, updatedJourneyData) => {
   }
 };
 
-// Delete a journey by ID
+
 export const deleteJourney = async (journeyId) => {
   const token = getAuthToken();
   
   try {
-    const response = await fetch(`${API_BASE_URL}/journeys/${journeyId}`, {
+    const response = await fetch(`${apiurl}/journeys/${journeyId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

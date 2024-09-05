@@ -9,12 +9,15 @@ const {
     getJourneyById,
     updateJourney,
     deleteJourney,
-    forkJourney
+    forkJourney,
+    createJourneyFromPlaylist
 
 } = require('../controllers/journeys');
 
 
+
 router.post('/journeys', authenticateToken,createJourney);
+router.post('/journeys/playlist', authenticateToken, createJourneyFromPlaylist);
 router.get('/journeys', authenticateToken, getAllJourneys);
 router.get('/journeys/:id', authenticateToken, getJourneyById);
 router.put('/journeys/:id', authenticateToken, updateJourney);

@@ -2,9 +2,10 @@ const db = require('../dbConnec');
 
 
 exports.createChapter = async (data) => {
+
     const [result] = await db.execute(
-        'INSERT INTO chapters (title, description, video_link, external_link, chapter_no, journey_id) VALUES (?, ?, ?, ?, ?, ?)',
-        [data.title, data.description, data.video_link, data.external_link, data.chapter_no, data.journey_id]
+        'INSERT INTO chapters (title, description, video_link, chapter_no, journey_id) VALUES (?, ?, ?, ?, ?)',
+        [data.title, data.description, data.video_link, data.chapter_no, data.journey_id]
     );
     return result.insertId;
 };

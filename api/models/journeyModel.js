@@ -1,9 +1,16 @@
 const db = require('../dbConnec');
 
 exports.createJourney = async (data) => {
+    
+    const title = data.title || 'Untitled Journey'; // Use a default title if undefined
+    const description = data.description || '';     // Default to an empty description if undefined
+    const is_public = data.is_public !== undefined ? data.is_public : true; // Default to public if undefined
+    const user_id = data.user_id || null;  
+
     const [result] = await db.execute(
         'INSERT INTO journeys (title, description, is_public, user_id) VALUES (?, ?, ?, ?)',
-        [data.title, data.description, data.is_public, data.user_id]
+        // [data.title, data.description, data.is_public, data.user_id]
+        [title, description, is_public, user_id]
     );
     return result.insertId;
 };

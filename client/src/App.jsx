@@ -34,7 +34,7 @@ function App() {
         <Route path="/explore" element={<Explore />} />
         <Route path="/profile" element={<ProfileDashboard />} />
         <Route path="/journey/:jId" element={<JourneyPage />} />
-        <Route path="/player/:chapter_id" element={<VideoPlayerPage />} />
+        <Route path="/player/:videoId" element={<VideoPlayerPage />} />
         <Route path="/auth" element={<Auth />} />
       </Routes>
       <Footer />

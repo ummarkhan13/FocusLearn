@@ -1,4 +1,6 @@
 const Journey = require('../models/journeyModel');
+const Chapter = require('../models/chapterModels');
+const { getPlaylistDetails, getPlaylistVideos } = require('./playlistJourney');
 
 // Create a new journey
 exports.createJourney = async (req, res) => {
@@ -12,6 +14,52 @@ exports.createJourney = async (req, res) => {
         res.status(201).json({ id: journeyId });
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+};
+
+//create journey by playlist
+exports.createJourneyFromPlaylist = async (req, res) => {
+    try {
+        const { playlistId } = req.body;
+
+        if (!playlistId) {
+            return res.status(400).json({ error: 'Playlist ID is required' });
+        }
+
+
+        // Fetch playlist details
+        const { title, description } = await getPlaylistDetails(playlistId);
+        console.log(title,description);
+
+        // Create journey
+        const journeyId = await Journey.createJourney({
+            title,
+            description,
+            is_public: true, // or set based on your logic
+            user_id: req.user.id
+        });
+
+        // Fetch playlist videos
+        const videos = await getPlaylistVideos(playlistId);
+        // console.log(videos);
+        
+
+        // Create chapters
+        for (const video of videos) {
+            console.log(video.videoLink);
+            await Chapter.createChapter({
+                title: video.title,
+                video_link: video.videoLink || 'no video',
+                description: video.description,
+                chapter_no: video.chapterNo,
+                journey_id: journeyId
+            });
+        }
+
+        res.status(201).json({ id: journeyId });
+    } catch (error) {
+        console.error('Error creating journey from playlist:', error.message);
+        res.status(500).json({ error: error.message });
     }
 };
 

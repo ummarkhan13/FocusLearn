@@ -62,3 +62,15 @@ export const logout = () => {
   Cookies.remove('authToken');
 //   setUser(null);
 };
+
+export const extractPlaylistId = (url) => {
+    const match = url.match(/(?:playlist\?list=|\/playlists\/)([^&?\/]+)/);
+    return match ? match[1] : null;
+};
+
+export const extractVideoId = (url) => {
+    const regExp =
+      /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[7].length === 11 ? match[7] : null;
+  };
