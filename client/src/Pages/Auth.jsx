@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginUser, registerUser } from "../Api";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true); // Toggle between login and register
+  const [isLogin, setIsLogin] = useState(true); 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,7 +26,7 @@ const Auth = () => {
     const userData = { username, email, password };
     const result = await registerUser(userData);
     if (result) {
-      navigate("/login");
+      setIsLogin(false)
     }
     console.log(result);
   };
@@ -47,7 +47,7 @@ const Auth = () => {
               {isLogin ? "Sign in to your account" : "Create an account"}
             </h1>
 
-            {/* Form starts here */}
+     
             <form
               onSubmit={(e) => (isLogin ? handleLoginSubmit(e) : handleRegisterSubmit(e))}
               className="space-y-4 md:space-y-6"
