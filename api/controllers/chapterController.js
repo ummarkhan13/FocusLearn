@@ -59,6 +59,21 @@ exports.updateChapter = async (req, res) => {
     }
 };
 
+exports.updateChapterCompleted = async (req, res) => {
+    try {
+        const updated = await Chapter.updateChapterComplete(req.params.id, {
+            is_completed: req.body.is_completed,
+            
+        });
+        if (!updated) {
+            return res.status(404).json({ message: 'Chapter not found' });
+        }
+        res.json({ message: 'Chapter updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Delete a chapter by ID
 exports.deleteChapter = async (req, res) => {
     try {

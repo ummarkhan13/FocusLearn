@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { extractVideoId, journey, textss } from "../Constants";
+import { calculateProgress, extractVideoId, journey, textss } from "../Constants";
 import CreateChapter from "../Components/forms/CreateChapter";
 import AddNotes from "../Components/forms/AddNotes";
 import EditChapter from "../Components/forms/EditChapter";
 import VideoPlayer from "../Components/VideoPlayer";
 import { getJourneyById } from "../Api/journeys";
-import { getChaptersByJourneyId } from "../Api/chapters";
+import {
+  deleteChapter,
+  getChaptersByJourneyId,
+  updateChapterComplete,
+} from "../Api/chapters";
 
 const JourneyPage = () => {
   const [toggleDropDown, setToggleDD] = useState("hidden");
@@ -18,27 +22,81 @@ const JourneyPage = () => {
 
   const { jId } = useParams();
   const [open, setOpen] = useState(false);
+  const [chapterId, setChapterId] = useState(null);
+  const [chDetails, setChDetails] = useState(null);
   const [openNotes, setOpenNotes] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [openV, setOpenV] = useState(false);
   const [jData, setJData] = useState("");
+  const [progress, setProgress] = useState(0);
 
-  const fetchData = async () => {
-    const journeys = await getJourneyById(jId);
-    const chapterList = await getChaptersByJourneyId(jId);
-    if (journeys) {
-      setJData(journeys);
-      console.log(journeys);
-    }
-    if (chapterList) {
-      setChapters(chapterList);
-      console.log(chapterList);
+  
+
+  const deleteOneChapter = async (chapterId) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this chapter?"
+    );
+
+    if (isConfirmed) {
+      try {
+        await deleteChapter(chapterId);
+        console.log("chapter deleted successfully.");
+        fetchData();
+      } catch (error) {
+        console.error("Error deleting journey:", error);
+      }
+    } else {
+      console.log("Deletion canceled.");
     }
   };
 
+  const updateCheckBox = async (check, chId) => {
+    const chapterData = {
+      is_completed: !check, // Toggle the completion status
+    };
+  
+    try {
+      const response = await updateChapterComplete(chId, chapterData);
+      console.log(response);
+      await fetchData(); // Wait for the data to be fetched before calculating progress
+    } catch (error) {
+      console.error('Error updating chapter:', error);
+    }
+  };
+  
+  const fetchData = async () => {
+    try {
+      const journeys = await getJourneyById(jId);
+      const chapterList = await getChaptersByJourneyId(jId);
+  
+      if (journeys) {
+        setJData(journeys);
+        console.log('Journey data:', journeys);
+      }
+  
+      if (chapterList) {
+        setChapters(chapterList);
+        console.log('Chapters:', chapterList);
+        getProgress(chapterList);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  
+  const getProgress = (chapterList) => {
+    if(chapterList.length !== 0){
+
+      const percent = calculateProgress(chapterList);
+      console.log('Progress:', percent);
+      setProgress(percent);
+    }
+  };
+  
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [open, setOpen, setOpenEdit]); // Only dependencies necessary for re-fetching
+  
+  
 
   return (
     <div>
@@ -48,17 +106,17 @@ const JourneyPage = () => {
           <div class="lg:col-span-10 lg:mt-0">
             <div className="flex flex-col gap-3">
               <div className="font-bold text-4xl text-white">{jData.title}</div>
-              <div className="font-bold text-2xl text-white">
+              <div className=" font-medium text-xl text-white">
                 {jData.description}
               </div>
-              <div className="font-semi text-xl text-white">
+              <div className="font-semi text-md font-semibold text-white bg-slate-600 rounded-md w-fit p-1 ">
                 {jData.is_public ? "public" : "private"}
               </div>
 
-              <div class="my-6 w-full bg-gray-200 rounded-full h-4">
-                <div class="bg-blue-600 h-4 rounded-full w-[40%]"></div>
+              <div class="my-6 w-full bg-gray-300 rounded-full h-4">
+                <div class={`bg-blue-600 h-4 rounded-full `} style={{width:`${progress}%`}}></div>
                 <div className="font-semi text-xl text-white my-1">
-                  Progress: 40%
+                  Progress: {progress}%
                 </div>
               </div>
             </div>
@@ -66,7 +124,7 @@ const JourneyPage = () => {
 
           <div class="my-5 me-auto place-content-end place-self-start place-items-center  lg:col-span-1">
             <Link
-              to="#"
+              to={`/notes/${jData.id}`}
               class="inline-flex items-center justify-center rounded-lg bg-primary-700 px-5 py-3 text-center text-base font-medium text-white hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
             >
               Notes
@@ -91,10 +149,13 @@ const JourneyPage = () => {
                   <span className="font-bold text-2xl pb-1 mx-2"> +</span> Add
                   New Chapter
                 </button>
-                <CreateChapter open={open} setOpen={setOpen} />
-                {/* <AddNotes openNotes={openNotes} setOpenNotes={setOpenNotes}/> */}
-                <EditChapter openEdit={openEdit} setOpenEdit={setOpenEdit} />
-                {/* <VideoPlayer openV={openV} setOpenV={setOpenV} videoId={videoId} /> */}
+                <CreateChapter open={open} setOpen={setOpen} journeyId={jId} />
+                <EditChapter
+                  openEdit={openEdit}
+                  setOpenEdit={setOpenEdit}
+                  chapterId={chapterId}
+                  chDetails={chDetails}
+                />
               </div>
               {textss[0]}
             </div>
@@ -125,54 +186,68 @@ const JourneyPage = () => {
                 </thead>
 
                 <tbody>
-                  {chapters.map((chapter, index) => (
-                    <tr
-                      key={chapter.id}
-                      className="border-b dark:border-gray-700"
-                    >
-                      <td className="px-4 py-3 text-md font-semibold">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                        />
-                      </td>
-                      <th
-                        scope="row"
-                        className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  {chapters &&
+                    chapters?.map((chapter, index) => (
+                      <tr
+                        key={chapter.id}
+                        className="border-b dark:border-gray-700"
                       >
-                        {index + 1}
-                      </th>
-                      <td className="px-4 py-3 text-md font-semibold cursor-pointer hover:underline">
-                        <Link to={`/player/${extractVideoId(chapter.video_link) }`}>
-                          {chapter.title}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3">
-                        <button
-                          className="text-yellow-500 rounded hover:bg-slate-900 p-2 text-md font-semibold border"
-                          onClick={() => console.log("Add Notes clicked")}
+                        <td className="px-4 py-3 text-md font-semibold">
+                          <input
+                            type="checkbox"
+                            checked={chapter.is_completed}
+                            onClick={() => {
+                              updateCheckBox(chapter.is_completed, chapter.id);
+                            }}
+                            className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
+                          />
+                        </td>
+                        <th
+                          scope="row"
+                          className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                         >
-                          Add Notes
-                        </button>
-                      </td>
-                      <td className="px-4 py-3 max-w-[12rem] truncate">
-                        <button
-                          className="text-green-500 rounded hover:bg-slate-900 p-2 text-md font-semibold border"
-                          onClick={() => console.log("Edit clicked")}
-                        >
-                          Edit
-                        </button>
-                      </td>
-                      <td className="px-4 py-3 max-w-[12rem] truncate">
-                        <button
-                          className="text-red-500 rounded hover:bg-slate-900 p-2 text-md font-semibold border"
-                          onClick={() => console.log("Delete clicked")}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                          {index + 1}
+                        </th>
+                        <td className="px-4 py-3 text-md font-semibold cursor-pointer hover:underline">
+                          <Link
+                            to={`/player/${chapter.id}`}
+                          >
+                            {chapter.title}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            className="text-yellow-500 rounded hover:bg-slate-900 p-2 text-md font-semibold border"
+                            onClick={() => console.log("Add Notes clicked")}
+                          >
+                            Notes
+                          </button>
+                        </td>
+
+                        <td className="px-4 py-3 max-w-[12rem] truncate">
+                          <button
+                            className="text-green-500 rounded hover:bg-slate-900 p-2 text-md font-semibold border"
+                            onClick={() => {
+                              console.log(chapter.id);
+                              setChDetails(chapter);
+                              setChapterId(chapter.id);
+                              console.log(chDetails, "/n", chapterId);
+                              setOpenEdit(!openEdit);
+                            }}
+                          >
+                            Edit
+                          </button>
+                        </td>
+                        <td className="px-4 py-3 max-w-[12rem] truncate">
+                          <button
+                            className="text-red-500 rounded hover:bg-slate-900 p-2 text-md font-semibold border"
+                            onClick={() => deleteOneChapter(chapter.id)}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
 
                   {/* <tr className="border-b dark:border-gray-700">
                     <td className="px-4 py-3 text-md font-semibold">

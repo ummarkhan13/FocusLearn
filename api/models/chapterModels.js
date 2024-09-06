@@ -25,8 +25,16 @@ exports.getChapterById = async (id) => {
 
 exports.updateChapter = async (id, data) => {
     const [result] = await db.execute(
-        'UPDATE chapters SET title = ?, description = ?, video_link = ?, external_link = ?, chapter_no = ? WHERE id = ?',
-        [data.title, data.description, data.video_link, data.external_link, data.chapter_no, id]
+        'UPDATE chapters SET title = ?, description = ?, video_link = ?, chapter_no = ? WHERE id = ?',
+        [data.title, data.description, data.video_link,  data.chapter_no, id]
+    );
+    return result.affectedRows > 0;
+};
+
+exports.updateChapterComplete = async (id, data) => {
+    const [result] = await db.execute(
+        'UPDATE chapters SET is_completed = ? WHERE id = ?',
+        [data.is_completed, id]
     );
     return result.affectedRows > 0;
 };

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import OverallJourneyChart from "../Components/Dashboard/OverallJourneyChart";
 import JourneyPieChart from "../Components/Dashboard/JourneyPieChart";
-import { logout } from "../Constants";
+import { calculateProgress, logout } from "../Constants";
 import { useNavigate } from "react-router-dom";
 import { getUserProfile } from "../Api";
+import { getAllJourneys } from "../Api/journeys";
+import { getChaptersByJourneyId } from "../Api/chapters";
 
 const ProfileDashboard = () => {
 
@@ -15,19 +17,43 @@ const ProfileDashboard = () => {
   }
 
   const [user,setUser] = useState(null);
+  const [journeys, setJourneys] = useState([]);
 
+  const fetchJourneys = async () => {
+    try {
+
+      const journeyList = await getAllJourneys();
+
+      const journeysWithProgress = await Promise.all(
+        journeyList.map(async (journey) => {
+
+          const chapters = await getChaptersByJourneyId(journey.id);
+          const progress = calculateProgress(chapters);
+
+          return {
+            name: journey.title, 
+            completed: progress,
+            remaining: 100 - progress,
+          };
+        })
+      );
+
+      setJourneys(journeysWithProgress);
+    } catch (error) {
+      console.error('Error fetching journeys:', error);
+    }
+  };
+
+  
   useEffect(()=>{
     getUserProfile(setUser);
+    fetchJourneys();
     console.log(user);
   },[])
 
+ 
 
-
-  const journeys = [
-    { name: "Journey 1", completed: 70, remaining: 30 },
-    { name: "Journey 2", completed: 50, remaining: 50 },
-    { name: "Journey 3", completed: 90, remaining: 10 },
-  ];
+   
 
   const overallJourneys = journeys.map((journey) => ({
     name: journey.name,
@@ -73,28 +99,14 @@ const ProfileDashboard = () => {
         {/* Profile Section */}
         <section className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8 flex justify-between px-8">
           <div className="flex  items-center">
-            <img
-              src="https://via.placeholder.com/100"
-              alt="Profile"
-              className="w-24 h-24 rounded-full border-4 border-primary-600"
-            />
+          
             <div className="ml-6">
               <h2 className="text-2xl font-bold">{user?.username}</h2>
               <p className="text-primary-100">{user?.email}</p>
               {/* <p className="text-primary-100">San Francisco, CA</p> */}
             </div>
           </div>
-          <div>
-            <p className="text-primary-100">
-              <h1 className="text-xl underline my-3 font-bold">Badges</h1>
-              <img
-                className="rounded-full border"
-                src="https://png.pngtree.com/png-clipart/20221231/original/pngtree-reward-badges-png-image_8837239.png"
-                alt=""
-                width={"60px"}
-              />
-            </p>
-          </div>
+         
         </section>
 
         {/* Journey Progress */}

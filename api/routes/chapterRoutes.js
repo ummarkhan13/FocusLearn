@@ -8,6 +8,7 @@ router.post('/:journeyId/chapters', authenticateToken, chapterController.createC
 router.get('/:journeyId/chapters', authenticateToken, chapterController.getChaptersByJourneyId);
 router.get('/chapters/:id', authenticateToken, chapterController.getChapterById);
 router.put('/chapters/:id', authenticateToken, chapterController.updateChapter);
+router.put('/chapters/isComplete/:id', authenticateToken, chapterController.updateChapterCompleted);
 router.delete('/chapters/:id', authenticateToken, chapterController.deleteChapter);
 
 module.exports = router;

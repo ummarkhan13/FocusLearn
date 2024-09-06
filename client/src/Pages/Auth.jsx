@@ -25,8 +25,9 @@ const Auth = () => {
     e.preventDefault();
     const userData = { username, email, password };
     const result = await registerUser(userData);
+    console.log(result);
     if (result) {
-      setIsLogin(false)
+      setIsLogin(!isLogin)
     }
     console.log(result);
   };

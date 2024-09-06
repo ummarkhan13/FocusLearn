@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 // import {
 //   Dialog,
@@ -10,6 +10,7 @@ import { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { textss } from "../../Constants";
+import { createNote, getNotesByChapter, updateNote } from "../../Api/notes";
 
 const modules = {
   toolbar: [
@@ -41,27 +42,70 @@ const formats = [
   "align",
 ];
 
-const AddNotes = () =>
-  // { openNotes, setOpenNotes }
-  {
-    // const open = openNotes;
-    // const setOpen = setOpenNotes;
+const AddNotes = ({journeyId,chapterId}) => {
+
     const [value, setValue] = useState("");
+    const [noteId, setNoteId] = useState("");
+    const [submitMode, setSubmit] = useState(true);
 
-    const handleSubmit = () => {
-      textss.push(value);
-      console.log(textss);
-
-      console.log(value);
+    const handleSubmit = async() => {
+      try {
+        const response = await createNote(journeyId,chapterId,value)
+        console.log('notes added '+response);
+        fetchNotes()
+        alert('Notes added successfully')
+      } catch (error) {
+        console.log(error);
+      }
     };
 
+    const handleUpdate = async()=>{
+      try {
+        const response = await updateNote(noteId,value)
+        fetchNotes()
+        console.log(response);
+        alert('notes updated successfully')
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const fetchNotes = async()=>{
+      try {
+        const response = await getNotesByChapter(chapterId);
+        if(response){
+
+          setValue(response[0].content)
+          setSubmit(false)
+          setNoteId(response[0].id)
+        }
+        console.log("response: "+response);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    useEffect(()=>{
+      console.log("chapterid:", chapterId);
+      fetchNotes();
+      console.log('fetching notes--------');
+    },[])
+
     return (
-      <section class="bg-white dark:bg-gray-900">
+      <section class="bg-white block dark:bg-gray-900">
         <div class="py-8 px-4 mx-auto max-w-4xl lg:py-16">
           <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">
             ADD Notes
           </h2>
-          <form action="#" onSubmit={handleSubmit} className="text-white ">
+          <form onSubmit={(e)=>{
+            e.preventDefault();
+            if (submitMode) {
+              handleSubmit()
+            } else {
+              handleUpdate()
+            }
+          }}
+           className="text-white ">
             <ReactQuill
               value={value}
               onChange={setValue}

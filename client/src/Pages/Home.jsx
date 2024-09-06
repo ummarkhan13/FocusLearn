@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CreateJourney from "../Components/forms/CreateJourney";
 import { deleteJourney, getAllJourneys } from "../Api/journeys";
+import { notesLogo } from "../Constants";
 
 const Home = () => {
 
@@ -97,9 +98,7 @@ const Home = () => {
               <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
-                    <th scope="col" className="px-4 py-4">
-                      Journey ID
-                    </th>
+                   
                     <th scope="col" className="px-4 py-3">
                       Journey Name
                     </th>
@@ -108,6 +107,9 @@ const Home = () => {
                     </th>
                     <th scope="col" className="px-4 py-3">
                       Visibility
+                    </th>
+                    <th scope="col" className="px-4 py-3">
+                      Notes
                     </th>
                     <th scope="col" className="px-4 py-3">
                       <span className="sr-only">Actions</span>
@@ -119,12 +121,7 @@ const Home = () => {
                   {data &&
                     data.map((d, i) => (
                       <tr className="border-b dark:border-gray-700" key={d.id}>
-                        <th
-                          scope="row"
-                          className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                        >
-                          <Link to={`/journey/${d.id}`}>{d.id}</Link>
-                        </th>
+                       
                         <td className="px-4 py-3">
                         <Link className=" cursor-pointer hover:underline hover:text-white" to={`/journey/${d.id}`}>
                           {d.title ? d.title : "Untitled"}
@@ -136,6 +133,11 @@ const Home = () => {
                             : "No description available"}
                         </td>
                         <td className="px-4 py-3">{d.is_public?'public':'private'}</td>
+                        <td className="px-4 py-3">
+                          <Link to={`/notes/${d.id}`}>
+                          <img src={notesLogo} width={'30px'} className=" cursor-pointer " alt="" />
+                          </Link>
+                          </td>
                         <td className="px-4 py-3 flex items-center justify-end">
                           <button
                             className="inline-flex items-center text-sm font-medium hover:bg-red-500 dark:hover:bg-red-700 p-1.5 text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"

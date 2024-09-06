@@ -52,7 +52,8 @@ export const journey = [
 export const textss = []
 
 export const applogo = "https://cdn-icons-png.flaticon.com/512/5580/5580962.png"
-
+export const notesLogo = "https://cdn-icons-png.flaticon.com/512/5063/5063397.png"
+export const downloadLogo = "https://amritfoundationofindia.in/wp-content/uploads/2018/08/download-logo.png"
 
 // token
 import Cookies from 'js-cookie';
@@ -74,3 +75,17 @@ export const extractVideoId = (url) => {
     const match = url.match(regExp);
     return match && match[7].length === 11 ? match[7] : null;
   };
+
+  export const calculateProgress = (chapters) => {
+    const totalChapters = chapters.length;
+    
+    if (totalChapters === 0) return '0'; // Prevent division by zero and return as string
+    
+    const completedChapters = chapters.filter(chapter => chapter.is_completed).length;
+    
+    const progressPercentage = (completedChapters / totalChapters) * 100;
+    
+    return Math.floor(progressPercentage).toString(); // Returns progress as a whole number string
+  };
+  
+  
