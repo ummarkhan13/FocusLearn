@@ -12,6 +12,12 @@ This project is a comprehensive platform designed to create and  manage educatio
 - **Journey Management**: Allows users to create their own journeys and can add youtube videos, orelse just add url of youtube playlist it will automatically provides you list of chapters.
 ### Create New Journey
 ![Login Page](screenshots/addjourney.png)
+
+### Journey Page
+![Login Page](screenshots/journey.png)
+
+
+
 - **Video Playback**: Integrated video player to view youtube videos without the distractions typically found on platforms like YouTube and beside which you can also take notes.
 
 - **Note-Taking**: Users can add and download notes related to their journeys, ensuring all important information is easily accessible.
