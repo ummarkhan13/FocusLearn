@@ -34,19 +34,20 @@ const VideoPlayerPage = () => {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-2 p-4 w-full border-t-2 bg-gray-800 text-white">
-      <div className="w-full md:w-3/4">
-        <h1 className="text-2xl font-bold mt-2 text-white">{chapter.title}</h1>
+    <div className="gap-2 p-4 w-full border-t-2 bg-gray-800 text-white">
+       <h1 className="text-2xl font-bold mt-2 text-white">{chapter.title}</h1>
         <h1 className="text-md font-semibold my-4 text-gray-300">
           {chapter.description}
         </h1>
-
+      <div className="flex flex-col lg:flex-row ">
+      <div className="w-full md:w-3/4">
         {/* YouTubeApp receives the extracted videoId */}
         <YouTubeApp videoId={videoId} />
       </div>
 
       <div className="w-full md:w-1/2 mt-4 md:mt-0">
         <AddNotes journeyId={chapter.journey_id} chapterId={chapter.id} />
+      </div>
       </div>
     </div>
   );
