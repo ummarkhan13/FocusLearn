@@ -18,6 +18,8 @@ const Auth = () => {
     if (result) {
       navigate("/");
       console.log(result);
+    }else{
+      alert("please signup or enter correct details")
     }
   };
 
@@ -28,6 +30,8 @@ const Auth = () => {
     console.log(result);
     if (result) {
       setIsLogin(!isLogin)
+    }else{
+      alert("something went wrong!")
     }
     console.log(result);
   };

@@ -1,4 +1,5 @@
-export const apiurl = "http://localhost:5000/api/v1";
+// export const apiurl = "http://localhost:5000/api/v1";
+export const apiurl = "https://focus-learn-api.vercel.app/api/v1";
 
 export const registerUser = async (userData) => {
     try {
@@ -19,6 +20,7 @@ export const registerUser = async (userData) => {
         return data;
     } catch (error) {
         console.error('Error registering user:', error);
+        alert(error)
         throw error;
     }
 };
@@ -44,6 +46,7 @@ export const loginUser = async (credentials) => {
         return data;
     } catch (error) {
         console.error('Error logging in:', error);
+        alert(error)
         throw error;
     }
 };
