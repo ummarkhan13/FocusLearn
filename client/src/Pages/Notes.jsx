@@ -51,12 +51,12 @@ const Notes = () => {
 
   // Render the notes or a message if there's an error or no notes
   return (
-    <div className="p-4 dark:bg-gray-900 text-white">
+    <div className="p-4 dark:bg-gray-900 text-white px-48">
       <h1 className="text-2xl font-bold mb-4">Notes</h1>
    
       {error && <div className="text-red-500">{error}</div>}
       {notes.length === 0 && !error ? (
-        <div>No notes available for {jData ? jData.title : ' this journey'}.</div>
+        <div className='flex justify-center text-xl font-semibold items-center w-full h-[75vh]'>No notes available for {jData ? jData.title : ' this journey'}.</div>
       ) : (
         <>
           <button 

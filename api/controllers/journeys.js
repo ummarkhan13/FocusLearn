@@ -117,37 +117,12 @@ exports.deleteJourney = async (req, res) => {
     }
 };
 
-// Fork a public journey
-// exports.forkJourney = async (req, res) => {
-//     try {
-//         const originalJourney = await Journey.getJourneyById(req.params.id);
-//         if (!originalJourney || !originalJourney.is_public) {
-//             return res.status(404).json({ message: 'Public journey not found' });
-//         }
-
-//         console.log(originalJourney);
-        
-
-//         const forkedJourneyId = await Journey.forkJourney({
-//             title: originalJourney.title,
-//             description: originalJourney.description,
-//             is_forked:true,
-//             user_id: req.user.id
-//         });
-
-//         res.status(201).json({ id: forkedJourneyId });
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// };
-
-
 
 exports.forkJourney = async (req, res) => {
     try {
         //jouney id
         const jid = req.params.id;
-        const userId = req.body.user_id;
+        const userId = req.user.id;
 
         const newJourneyId = await Journey.forkJourney(jid, userId);
 
@@ -160,3 +135,19 @@ exports.forkJourney = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+exports.getPublicJourneys = async (req, res) => {
+    try {
+      const publicJourneys = await Journey.getAllPublicJourneys();
+      
+      if (!publicJourneys || publicJourneys.length === 0) {
+        return res.status(404).json({ message: 'No public journeys found' });
+      }
+  
+      res.status(200).json(publicJourneys);
+    } catch (error) {
+      console.error('Error fetching public journeys:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  

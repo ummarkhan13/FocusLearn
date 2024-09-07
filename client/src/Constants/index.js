@@ -54,6 +54,7 @@ export const textss = []
 export const applogo = "https://cdn-icons-png.flaticon.com/512/5580/5580962.png"
 export const notesLogo = "https://cdn-icons-png.flaticon.com/512/5063/5063397.png"
 export const downloadLogo = "https://amritfoundationofindia.in/wp-content/uploads/2018/08/download-logo.png"
+export const forklogo = "https://static-00.iconduck.com/assets.00/git-fork-icon-256x256-btbkqu6v.png"
 
 // token
 import Cookies from 'js-cookie';
