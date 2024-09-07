@@ -80,16 +80,7 @@ Make sure you have the following installed:
 
 3. **Set up environment variables:**
 
-    Create a `.env` file in the root directory of the project and add the following variables:
-
-    ```
-    DB_HOST=localhost
-    DB_USER=root
-    DB_PASSWORD=yourpassword or ''
-    DB_NAME=yourdatabasename
-    JWT_SECRET=yourjwtsecret
-    ```
-
+    Create a `.env` file in the root directory of the api and reffer `.env.example` file for env variables
 
 4. **Start the development server:**
 
