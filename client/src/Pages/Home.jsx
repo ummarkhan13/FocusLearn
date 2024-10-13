@@ -150,25 +150,7 @@ const Home = () => {
                       </tr>
                     ))}
 
-                  {/* <tr className="border-b dark:border-gray-700">
-                    <th
-                      scope="row"
-                      className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                    >
-                      <Link to={`/journey/${d.jId}`}>{d.journey}</Link>
-                    </th>
-                    <td className="px-4 py-3">{d.subject}</td>
-                    <td className="px-4 py-3 max-w-[12rem] truncate">
-                      {" "}
-                      {d.Description}{" "}
-                    </td>
-                    <td className="px-4 py-3">$2999</td>
-                    <td className="px-4 py-3 flex items-center justify-end">
-                      
-                    </td>
-
-                    
-                  </tr> */}
+                
                 </tbody>
               </table>
             </div>
